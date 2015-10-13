@@ -2,7 +2,7 @@ define(function(require, exports, module) {
     main.consumes = [
         "Plugin", "ui", "commands", "menus", "preferences", "settings"
     ];
-    main.provides = ["codeflow"];
+    main.provides = ["codeflows"];
     return main;
 
     function main(options, imports, register) {
@@ -30,7 +30,7 @@ define(function(require, exports, module) {
             }, plugin);
             
             commands.addCommand({
-                name: "codeflow_start",
+                name: "codeflows_start",
                 
             })
             
@@ -154,7 +154,7 @@ define(function(require, exports, module) {
         });
         
         register(null, {
-            "codeflow": plugin
+            "codeflows": plugin
         });
     }
 });

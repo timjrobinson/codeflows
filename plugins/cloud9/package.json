@@ -1,5 +1,5 @@
 {
-  "name": "codeflow",
+  "name": "codeflows",
   "description": "Document the flow of your projects code",
   "version": "0.0.1",
   "author": "Tim Robinson <tim@timjrobinson.com>",
@@ -11,10 +11,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/timjrobinson/codeflow"
+    "url": "https://github.com/timjrobinson/codeflows"
   },
   "plugins": {
-    "codeflow": {}
+    "codeflows": {}
   },
   "categories": ["miscellaneous"],
   "licenses": []
