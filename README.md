@@ -9,6 +9,23 @@ The flows are stored in JSON format so they can be understood by any language. S
 
 It's currently only available as a plugin for Cloud9 but please feel free to create a plugin for your favorite IDE and add a link to this readme. 
 
+
+## Contributing
+
+### Cloud9 Plugin
+
+Making changes to this plugin and testing them is quite simple. Here's how:
+
+- Fork this project
+- Create a new Cloud9 workspace from the Github url of your fork.
+- `mkdir ~/.c9/plugins`
+- `ln -s ~/workspace/plugins/cloud9 ~/.c9/plugins/codeflows`
+- Reload your environment with ?debug=2 in the url
+
+Codeflows will now be loaded in your environment and you can make changes to plugins/cloud9 then refresh and you'll immediately see them in action. 
+
+For more information on developing plugins for Cloud9 see https://cloud9-sdk.readme.io/docs
+
 ## License
 
 MIT
