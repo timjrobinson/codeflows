@@ -1,6 +1,6 @@
 define(function(require, exports, module) {
     main.consumes = [
-        "Plugin", "ui", "commands", "menus", "preferences", "settings"
+        "Plugin", "ui", "commands", "menus", "preferences", "settings", "fs"
     ];
     main.provides = ["codeflows"];
     return main;
@@ -9,6 +9,7 @@ define(function(require, exports, module) {
         var Plugin = imports.Plugin;
         var ui = imports.ui;
         var menus = imports.menus;
+        var fs = imports.fs;
         var commands = imports.commands;
         var settings = imports.settings;
         var prefs = imports.preferences;
@@ -19,6 +20,9 @@ define(function(require, exports, module) {
         var emit = plugin.getEmitter();
         
         var showing;
+        var flowStart;
+        var config;
+        
         function load() {
             commands.addCommand({
                 name: "mycommand",
@@ -31,8 +35,30 @@ define(function(require, exports, module) {
             
             commands.addCommand({
                 name: "codeflows_start",
-                
-            })
+                bindKey: { mac: "Command-Shift-,", win: "Ctrl-Shift-," },
+                isAvailable: function() { return true; },
+                exec: function(editor) {
+                    start(editor);
+                }
+            }, plugin);
+            
+            commands.addCommand({
+                name: "codeflows_end",
+                bindKey: { mac: "Command-Shift-.", win: "Ctrl-Shift-." },
+                isAvailable: function() { return true; },
+                exec: function(editor) {
+                    end(editor);
+                }
+            }, plugin);
+            
+            commands.addCommand({
+                name: "codeflows_follow",
+                bindKey: { mac: "Command-.", win: "Ctrl-." },
+                isAvailable: function() { return true; },
+                exec: function() {
+                    hide();
+                }
+            }, plugin);
             
             menus.addItemByPath("Tools/My Menu Item", new ui.item({
                 command: "mycommand"
@@ -69,6 +95,8 @@ define(function(require, exports, module) {
                     }
                 }
             }, plugin);
+            
+            loadFlows();
         }
         
         var drawn = false;
@@ -108,6 +136,70 @@ define(function(require, exports, module) {
             showing = false;
         }
         
+        function start(editor) {
+            var file = editor.activeDocument.tab.path
+            var selection = editor.ace.selection.selectionLead;
+            // Could get word with editor.ace.selection.selectAWord() but don't want it to expand out and back in.
+            
+            flowStart = {file: file, column: selection.column, row: selection.row}; 
+        }
+        
+        function end(editor) {
+            var file = editor.activeDocument.tab.path
+            var selection = editor.ace.selection.selectionLead;
+            
+            endFlow(file, selection.column, selection.row);
+        }
+        
+        function endFlow(file, column, row, text) {
+            if (!flowStart) return;
+            
+            var flowEnd = {file: file, column: column, row: row};
+            insertFlow(flowStart, flowEnd)
+        }
+        
+        function insertFlow(start, end) {
+            config.flows.total = config.flows.total + 1;
+            var flowNum = config.flows.total;
+            config.flows[flowNum] = {
+                start: start, 
+                end: end
+            };
+            saveFlows();
+        }
+        
+        function loadFlows() {
+            fs.readFile("/.codeflows", function (err, contents) {
+                if (err) {
+                    if (err.code == "ENOENT") {
+                        config = {flows: {total: 0}, files: {}};        
+                        return saveFlows();
+                    }
+                    return console.error(err);
+                }
+                
+                try {
+                    config = JSON.parse(contents);
+                } catch (e) {
+                    console.error("Could not parse .codeflows config file");
+                }
+            });
+            
+        }
+        
+        function saveFlows() {
+            var flowsEncoded = JSON.stringify(config);
+            fs.writeFile("/.codeflows", flowsEncoded, function (err) {
+                if (err) return console.error(err);
+                
+                console.log("Successfully saved flows");
+            });
+        }
+        
+        function follow() {
+            
+        }
+        
         /***** Lifecycle *****/
         
         plugin.on("load", function() {
@@ -116,6 +208,8 @@ define(function(require, exports, module) {
         plugin.on("unload", function() {
             drawn = false;
             showing = false;
+            flowStart = null;
+            config = null;
         });
         
         /***** Register and define API *****/

@@ -1,5 +1,6 @@
 {
     "flows": {
+        "total": 1,
         "1": {
             "start": {"file": "/examples/code.js", "row": 3, "column": 28, "text": "library[randomNumberFunctionName]()"},
             "end": {"file": "/examples/library.js", "row": 1, "column": 4, "text": "getRandomNumber"}
